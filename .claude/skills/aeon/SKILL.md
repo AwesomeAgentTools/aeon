@@ -235,14 +235,17 @@ They just did something in Claude Code and want it to happen on a schedule.
 
 ```yaml
 ---
-type: Skill
-name: My Skill
-category: basics
+name: my-skill
 description: One line — what it does and what it sends.
-var: ""
-tags: [content]
-mode: read-only
-requires: [SOME_API_KEY?]
+metadata:
+  title: My Skill
+  mode: read-only
+  category: basics
+  var: ""
+  tags:
+    - content
+  requires:
+    - SOME_API_KEY?
 ---
 
 Today is ${today}. <the prompt — plain instructions, including judgment calls>
@@ -310,7 +313,7 @@ Three at a time, not twelve. Every enabled skill is a recurring notification, an
 
 `ls` footers with `65 skills · 1 enabled` — read it to them before proposing anything. First run installs the CLI runtime (tsx + yaml, ~12MB); the npm noise is one-time and expected. Grep-only equivalents: `references/layout.md`.
 
-Packs are a visibility filter, not a runtime switch — revealing one runs nothing. Core (11), Evolution (8) and Basics (15) show by default; Dev (10), Crypto (13) and Productivity (8) are on demand.
+Packs are a visibility filter, not a runtime switch — revealing one runs nothing. Core (11), Evolution (8) and Basics (16) show by default; Dev (10), Crypto (14) and Productivity (6) are on demand.
 
 Reasonable starting sets:
 
