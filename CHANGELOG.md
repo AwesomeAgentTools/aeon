@@ -11,6 +11,33 @@ from or pin to; the template keeps serving the latest `main` to new forks.
 
 ### Added
 
+- **New skill: `taskmarket-delegate`** - delegates work to the TaskMarket
+  agent-worker market (`tasks.taskmarket.dev` / `api.taskmarket.dev`) instead of
+  burning inference on low-confidence work. `browse` ranks open tasks
+  winnable-first with no key; `create`/`submit` sit behind an explicit operator
+  authorization gate and degrade cleanly to read-only when `TASKMARKET_API_KEY` is
+  unset. Ships a zero-dependency node client and a 6-test suite (live read-only
+  browse, no spend). `crypto` pack, disabled by default; brings the catalog to
+  **75 skills** (74 -> 75; Crypto 14 -> 15). (#865)
+- **New skill: `hunter-22`** - calls ClawHunter's free bounty-discovery API,
+  matches candidates against the agent's real demonstrated capabilities (code,
+  security research, research, writing, dependency analysis), and triages honestly
+  - dropping content/social-growth work wearing a bounty costume, keeping
+  deliverable work. Discovery only: no wallet, never claims or submits. When a kept
+  candidate is audit-shaped (a `code`/`onchain` bounty linking a GitHub repo), the
+  notification carries a one-tap "Audit owner/repo" button that dispatches
+  `vuln-scanner` straight at that repo, closing discovery to audit in one motion.
+  `productivity` pack, disabled by default; catalog 73 -> 74. (#864)
+- **New skill: `you-web-search`** - an optional You.com-backed web search against
+  the documented `https://api.you.com/v1/search` contract, giving operators a
+  structured, current web source without changing default behavior. Parses
+  `snippets[]` and `page_age` from the response shape You.com documents today;
+  `YDC_API_KEY` required, with optional `YOUCOM_FRESHNESS` and `YOUCOM_LIVECRAWL`
+  tuning. `basics` pack, disabled by default. (#795)
+- **Finance District listed in `docs/ECOSYSTEM.md`** - its Agent Wallet is in the
+  core catalog (`skills/finance-district-mcp`, #791) and launched as a supported
+  wallet on aeon; one alphabetized row, mirrored to aeon.fun/ecosystem
+  automatically via hourly ISR. (#869)
 - **Five new skills, ported from the `aeon-dev` instance and generalized for any
   operator** (frontmatter converted to Agent Skills spec-form, OKF references
   removed, private product/instance references genericized): **`spend-watch`** (dev
@@ -138,6 +165,18 @@ from or pin to; the template keeps serving the latest `main` to new forks.
 
 ### Changed
 
+- **`vuln-scanner` now runs a repo's own `cargo-fuzz` harnesses** during scan arm A
+  (new step A3.5). The static tools (semgrep, trufflehog, osv-scanner) only ever
+  read files; if the scanned repo ships its own `fuzz/fuzz_targets`, the scanner
+  now seeds the corpus from its `tests/fixtures`, runs each target ~90s (capped at
+  8 targets), and triages a crash with the same rigor as any scanner hit before it
+  counts as a finding. A `command -v cargo-fuzz` + `fuzz/fuzz_targets` guard keeps
+  it a clean no-op on repos without a harness. The runtime half stages a nightly
+  Rust toolchain + `cargo-fuzz` in `stage-vuln-scanner.sh` (the sandbox denies
+  toolchain installs in-run) and widens the write-tier allowlist with
+  `Bash(cargo:*)` - a deliberate step up from read-only static scanning to
+  compiling and running the target's own code inside the sandboxed run. (#863,
+  #868)
 - **Dashboard catalog wiring for the five new skills** (#860): the Higgsfield hosted
   OAuth MCP is registered in `mcp-catalog.ts` (one-click Connect, secrets + OAuth
   refresh derived generically from the slug); `secrets-catalog.ts` adds
@@ -186,6 +225,13 @@ from or pin to; the template keeps serving the latest `main` to new forks.
 
 ### Fixed
 
+- **`bin/add-skill` could not install from the standard `skills/<slug>/SKILL.md`
+  layout** - the one this repo's own catalog uses. Discovery globbed at
+  `-maxdepth 2` (never matching the depth-3 `SKILL.md`) so every repo reported "No
+  skills found", and install resolved `$REPO_DIR/$skill` without the `skills/`
+  subdir. Discovery now searches `-maxdepth 3` and install resolves `skills/<slug>`
+  first, falling back to the flatter legacy layout. Verified end-to-end installing
+  `tx-explain` from `aeonfun/aeon`. (#866)
 - **Stale "Proof of work" numbers corrected** on the README to match
   aeon.fun/security and `ECOSYSTEM.md`: ~2M stars secured, 69 repos, 68 ecosystem
   products (community packs stay 12). (#843)
@@ -434,6 +480,15 @@ from or pin to; the template keeps serving the latest `main` to new forks.
 
 ### Security
 
+- **`ALL_SECRETS` built from an explicit allowlist, not `toJSON(secrets)`.**
+  Serializing the entire secret store into a workflow env var is the canonical
+  credential-exfiltration primitive, and on 2026-07-28 GitHub began holding
+  public-repo runs that match it for per-run, web-session-only approval - silently
+  taking the public instances `aeon-agent` and `miroshark-aeon` dark from
+  2026-07-30 (the `Aeon · Scheduler` workflow kept running green on `schedule`
+  events, so they looked alive while doing nothing). `ALL_SECRETS` now serializes
+  only the named secrets the workflow already references. Private forks were
+  unaffected - the GitHub feature is public-repo-only. (#819)
 - **Skill-scan recalibrated to fire on operations, not syntax.** The HIGH tier now
   matches dangerous sinks (code execution, secret exfiltration, destruction) and
   prompt injection rather than ordinary shell syntax, adds a `curl | sh` RCE
@@ -454,6 +509,8 @@ from or pin to; the template keeps serving the latest `main` to new forks.
 
 ### Maintenance
 
+- Dashboard Dependabot security fix: patched `nanoid` advisories (lockfile-only
+  transitive bump, no `package.json` change). (#871)
 - Webhook Dependabot batch (undici, `@opentelemetry/core`) plus two CI changes:
   dropped the daily cron from Setup Telegram Commands, and stated the egress-parser
   scope with a lockfile-coverage gate. (#826, #827, #839)
