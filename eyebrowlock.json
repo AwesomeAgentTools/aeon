@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-17T22:28:26.980333Z",
+  "generatedAt": "2026-08-24T14:14:01.883168Z",
   "generator": "eyebrow/0.4.1",
   "artifacts": [
     {
@@ -1502,7 +1502,7 @@
           "owasp": "ASK-06",
           "file": "hook-deploy.sh",
           "line": 175,
-          "snippet": "[ -f hook.env ] \u0026\u0026 . ./hook.env",
+          "snippet": "[ -f hook.env ] && . ./hook.env",
           "explanation": "references sensitive credential or secret paths"
         },
         {
@@ -1838,6 +1838,26 @@
       ],
       "contentHash": "sha256-d511b0f4a4d2326e03bbfe113c99de6eb4b7fcfc780bef42b68856e4a1b8ba4f",
       "discoveredFrom": "skills/install-skill/SKILL.md"
+    },
+    {
+      "id": "c87437853e0ee112",
+      "tool": "aeon",
+      "scope": "project:.",
+      "type": "skill",
+      "name": "skill-article",
+      "source": {
+        "kind": "local",
+        "ref": "skills/skill-article"
+      },
+      "capabilities": {},
+      "files": [
+        {
+          "path": "SKILL.md",
+          "hash": "7826b9d27920419beae3826ae2c91593510d37900e09eced55233dfa6654ef3e"
+        }
+      ],
+      "contentHash": "sha256-2f61efcffe5f0b3ee50f9fa9677e1b4d1951cde36502ee08450e61aa127b9534",
+      "discoveredFrom": "skills/skill-article/SKILL.md"
     },
     {
       "id": "c908c767a600220e",
