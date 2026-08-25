@@ -2,7 +2,7 @@
 name: rightstack
 description: Use RightStack as a read-only Web3 stack advisor for architecture recommendations, workflow inspection, tool comparisons, and package-migration checks. Use for planning; do not treat corpus output as implementation proof.
 metadata:
-  title: RightStack — Web3 Stack Advisor
+  title: RightStack - Web3 Stack Advisor
   category: dev
   var: ""
   tags:
@@ -15,13 +15,13 @@ metadata:
     - sends_notifications
 ---
 
-> **${var}** — one RightStack query. Grammar:
-> - `<build goal>` or `recommend: <build goal>` — recommend a Web3 stack.
-> - `workflow: <workflow-id>` — inspect a known workflow.
-> - `compare: <tool-a> | <tool-b>` — compare two tools.
-> - `explain: <tool-or-package>` — inspect one tool.
-> - `migrate: <package>` — check a package migration path.
-> - empty input — print the grammar and exit `RIGHTSTACK_EMPTY`.
+> **${var}** - one RightStack query. Grammar:
+> - `<build goal>` or `recommend: <build goal>` - recommend a Web3 stack.
+> - `workflow: <workflow-id>` - inspect a known workflow.
+> - `compare: <tool-a> | <tool-b>` - compare two tools.
+> - `explain: <tool-or-package>` - inspect one tool.
+> - `migrate: <package>` - check a package migration path.
+> - empty input - print the grammar and exit `RIGHTSTACK_EMPTY`.
 
 Today is ${today}. Use RightStack to produce a decision-ready Web3 architecture brief. RightStack is evidence to evaluate, not an authority: its corpus can be stale, incomplete, or route a broad prompt to the wrong workflow.
 
@@ -59,12 +59,12 @@ The skill is advisory only. It does not install a recommended SDK, edit applicat
 
 ## Exit taxonomy
 
-- `RIGHTSTACK_OK` — useful output that survived review.
-- `RIGHTSTACK_CORRECTED` — useful after clearly stated corrections.
-- `RIGHTSTACK_LOOKS_WRONG` — output does not fit the request.
-- `RIGHTSTACK_EMPTY` — no query supplied.
-- `RIGHTSTACK_BAD_INPUT` — malformed operation grammar.
-- `RIGHTSTACK_TOOL_ERROR` — the pinned CLI could not execute the request.
+- `RIGHTSTACK_OK` - useful output that survived review.
+- `RIGHTSTACK_CORRECTED` - useful after clearly stated corrections.
+- `RIGHTSTACK_LOOKS_WRONG` - output does not fit the request.
+- `RIGHTSTACK_EMPTY` - no query supplied.
+- `RIGHTSTACK_BAD_INPUT` - malformed operation grammar.
+- `RIGHTSTACK_TOOL_ERROR` - the pinned CLI could not execute the request.
 
 ## Log
 
