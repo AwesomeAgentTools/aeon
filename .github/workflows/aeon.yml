@@ -1059,6 +1059,39 @@ jobs:
           path: ${{ runner.temp }}/iron/audit.jsonl
           if-no-files-found: ignore
 
+      # Prove the vuln-scanner actually invoked a scanner: the staged wrappers log
+      # each call to executions.log; model prose is not execution evidence. Best-effort,
+      # warnings only, never gates the run.
+      - name: Verify vuln-scanner execution evidence
+        if: always() && steps.work.outputs.mode != '' && steps.skill.outputs.name == 'vuln-scanner'
+        run: |
+          set -u
+          echo '--- staged scanner manifest ---'
+          if [ -f /tmp/vuln-scan/prefetch.txt ]; then cat /tmp/vuln-scan/prefetch.txt; else echo 'manifest=missing'; fi
+          echo '--- actual scanner invocations ---'
+          if [ -s /tmp/vuln-scan/executions.log ]; then
+            cat /tmp/vuln-scan/executions.log
+          else
+            echo 'executions=none'
+            echo '::warning::vuln-scanner produced no machine-readable scanner invocation evidence'
+          fi
+          echo '--- per-tool execution status ---'
+          for tool in semgrep trufflehog osv-scanner; do
+            if [ -s /tmp/vuln-scan/executions.log ] && grep -q "^${tool} " /tmp/vuln-scan/executions.log; then
+              echo "${tool}=observed"
+            else
+              echo "${tool}=not-observed"
+              echo "::warning::${tool} was staged but no invocation was recorded"
+            fi
+          done
+          for tool in slither cargo-fuzz; do
+            if [ -s /tmp/vuln-scan/executions.log ] && grep -q "^${tool} " /tmp/vuln-scan/executions.log; then
+              echo "${tool}=observed"
+            else
+              echo "${tool}=not-observed-or-not-applicable"
+            fi
+          done
+
       # Undo "Single-source standing instructions" so the working tree matches HEAD
       # before any capture/guard/commit step runs. always(): the file must come back
       # even if Run failed or timed out. The move is a plain rename back — it touches
