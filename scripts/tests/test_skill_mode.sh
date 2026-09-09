@@ -34,6 +34,17 @@ echo "$WT" | grep -q "Write" && echo "$WT" | grep -q "Edit" \
 
 # allowed-tools: read-only tier drops mutation tools but keeps read+notify+curl
 RT=$(bash "$M" allowed-tools read-only)
+# Timeout wrappers are command heads, not covered by Bash(trufflehog:*).
+# Keep these general command runners out of the read-only tier.
+for timer in timeout gtimeout; do
+  echo "$WT" | tr ',' '\n' | grep -qxF "Bash($timer:*)" \
+    && pass "write tier includes $timer wrapper" || bad "write tier missing $timer wrapper"
+  if echo "$RT" | tr ',' '\n' | grep -qxF "Bash($timer:*)"; then
+    bad "read-only tier exposes $timer wrapper"
+  else
+    pass "read-only tier excludes $timer wrapper"
+  fi
+done
 if echo "$RT" | grep -q "Write" || echo "$RT" | grep -q "Edit" \
    || echo "$RT" | grep -q "Bash(git:\*)" || echo "$RT" | grep -q "Bash(gh:\*)"; then
   bad "read-only tier drops Write/Edit/git/gh"
@@ -49,6 +60,9 @@ echo "$RT" | grep -q "Read" && echo "$RT" | grep -q "WebFetch" \
 # after the cd was itself allowlisted — see the comment in skill_mode.sh).
 echo "$WT" | grep -q "Bash(cd:\*)" && pass "write tier includes cd" || bad "write tier includes cd"
 echo "$RT" | grep -q "Bash(cd:\*)" && pass "read-only tier includes cd" || bad "read-only tier includes cd"
+
+echo "$WT" | grep -q "Bash(./scripts/vuln-poc-gate.sh:\*)" \
+  && pass "write tier includes the vuln PoC verifier" || bad "write tier missing vuln PoC verifier"
 
 # grok-args is DELETED and must stay deleted. It emitted grok `--allow` rules that
 # never gated anything (adapters/grok.sh runs --permission-mode bypassPermissions,

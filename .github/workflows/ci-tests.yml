@@ -50,10 +50,14 @@ jobs:
         run: bash scripts/tests/test_telegram_route.sh
       - name: capability mode tests
         run: bash scripts/tests/test_skill_mode.sh
+      - name: vuln-scanner status contract tests
+        run: python3 scripts/tests/test_vuln_scanner_status.py
       - name: per-skill requires parse tests
         run: bash scripts/tests/test_skill_requires.sh
       - name: run actions summary tests
         run: bash scripts/tests/test_run_actions_summary.sh
+      - name: fleet scorecard classification tests
+        run: node --test scripts/tests/test_fleet_scorecard.mjs
       - name: skill-pack manifest validation tests
         run: bash scripts/tests/test_validate_pack.sh
       - name: community pack registry validation tests
@@ -89,6 +93,8 @@ jobs:
         run: bash scripts/tests/test_mcp_oauth_refresh.sh
       - name: langfuse-otel tests
         run: bash scripts/tests/test_langfuse_otel.sh
+      - name: llm-gateway glm effort tests
+        run: bash scripts/tests/test_llm_gateway.sh
       - name: otel harness-span tests
         run: bash scripts/tests/test_otel_span.sh
       - name: state reducer tests
@@ -97,6 +103,8 @@ jobs:
         run: bash scripts/tests/test_state_store.sh
       - name: health triage tests
         run: python3 scripts/tests/test_health_triage.py
+      - name: skill-health recovery tests
+        run: python3 scripts/tests/test_skill_health_recovery.py
       - name: health-issue ensure-race tests
         run: bash scripts/tests/test_health_issue.sh
       - name: skill-health harness routing tests
@@ -117,6 +125,12 @@ jobs:
         run: bash scripts/tests/test_chain_when.sh
       - name: chain-runner dispatch correlation tests
         run: bash scripts/tests/test_chain_runner.sh
+      - name: chain-runner invalid-dispatch cron-state tests
+        run: bash scripts/tests/test_chain_runner_invalid_dispatch.sh
+      - name: dev-loop deterministic handoff tests
+        run: bash scripts/tests/test_dev_loop_handoff.sh
+      - name: dev-loop review contract tests
+        run: bash scripts/tests/test_dev_loop_review.sh
       - name: skill-scan calibration (fires on sinks, not benign syntax)
         run: bash scripts/tests/test_skill_scan_calibration.sh
       - name: audit-log redaction tests
@@ -127,3 +141,5 @@ jobs:
         run: bash scripts/tests/test_secretcurl.sh
       - name: secretcurl xai retry tests
         run: bash scripts/tests/test_secretcurl_xai_retry.sh
+      - name: vuln-scanner PoC gate tests
+        run: bash scripts/tests/test_vuln_poc_gate.sh

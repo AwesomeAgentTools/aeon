@@ -9,12 +9,66 @@ from or pin to; the template keeps serving the latest `main` to new forks.
 
 ## [Unreleased]
 
+### Added
+
+- **New `compute-resell` skill (Crypto & Markets).** A disabled-by-default crypto
+  skill that resells free or low-cost provider compute (Bankr, AWS Bedrock, Google
+  Vertex) on the [Surplus Intelligence](https://surplusintelligence.ai) market. One
+  reactive engine runs per enabled provider, reads the live order book plus your
+  cost and usage, auto-lists your most-active models, and reactively prices each
+  offer within a floor/cap/health guardrail; a cross-provider claim ledger stops two
+  of your own providers undercutting each other. A provider is enabled only when its
+  wallet and credential secrets are both set. (#1036)
+- **New `submit-hook` skill (Crypto & Markets).** Ports the Uniswap v4 hook
+  marketplace publish path from `aeon-onchain` to canon: `deploy-uni-hook` step 11
+  now lists a live mainnet hook on the public `aeonfun/univ4-hooks` registry, opening
+  a PR (and filing a structured issue when there is no push access). All GitHub egress
+  stays inside the helper via the `gh` CLI. (#1040)
+- **New `cortx-reliability` skill (Crypto & Markets).** Checks whether an x402
+  payment endpoint is reliably delivering value before you spend USDC on it, returning
+  paid delivery rate, active incidents, latency, and a clear proceed/warn/block
+  recommendation. It merged in a prior window but landed below the sync watermark and
+  was never documented; reconciled into the catalog and icon set here. (#954)
+
 ### Changed
 
+- **`deploy-uni-hook` enforces the mandatory 10 bps AeonFee on every deployed hook.**
+  The audited `AeonFee` base is now ported into the skill's templates, so every hook
+  the live skill deploys inherits the mandatory protocol fee to `AEON_FEE_RECIPIENT`.
+  Hooks shipped through the skill were previously fee-free; only the hand-written
+  showcase hooks in `aeonfun/univ4-hooks` carried the fee. (#1035)
+
+### Fixed
+
+- **`aeon-update` derives the eyebrow version from CI.** The in-run `eyebrowlock.json`
+  rescan read the version from `.github/workflows/ci-skill-integrity.yml` instead of a
+  hardcoded pin, so sync PRs stop landing red on the `verify` check when CI has moved
+  ahead (was v0.4.1 in the skill vs v0.4.2 in CI). (#1037)
+- **Egress-audit artifact uploads no longer red on a proxied `FinalizeArtifact`.**
+  With `EGRESS_AUDIT` set, the audit-log upload steps kept the iron-proxy `HTTP(S)_PROXY`
+  env, so `upload-artifact`'s `FinalizeArtifact` call returned a 403 and failed an
+  otherwise-green run. Those steps now bypass the proxy. (#1038)
+- **The changelog skill formats the website changelog file after editing** so the
+  website `format:check` passes on generated output. (#1034)
+
+### Changed
+
+- **`ci-skill-integrity` pins eyebrow v0.4.2.** The drift / rug-pull gate now
+  installs `alexverify/eyebrow/action@v0.4.2` (still pinned by commit SHA). No
+  policy change: `eyebrow.policy.json` still gates on egress expansion and
+  critical findings only, and `allowContentDrift` stays true. Verified against
+  the current lock — clean, no new gate failures.
 - **GLM Coding Plan is a Claude AI Gateway hop, not a harness.** `GLM_API_KEY` (alias `ZAI_API_KEY`) now routes `claude -p` at `api.z.ai/api/anthropic` through `scripts/llm-gateway.sh`, last in the auto cascade (override with `gateway.provider: glm` or `GLM_MODEL`). `harness: glm` is a dead name and falls back to `claude`. The `glm` adapter is gone.
+- **GLM gateway pins reasoning effort to `high`.** Override with the repo variable `GLM_REASONING_EFFORT` (`low` / `high` / `max`). Claude Code only sends effort for recognized Claude ids, so the glm arm also sets `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1`. (#999)
 
 ### Added
 
+- **Docs: optional runtime hardening for the installed MCP server.**
+  [`docs/skill-integrity.md`](docs/skill-integrity.md) now describes `eyebrow
+  wrap`, an operator-side complement to the CI gate that routes the registered
+  Aeon MCP server through a local relay for per-tool policy, a redacted audit
+  log, tool-surface capture, and OS-sandbox confinement. Opt-in; no change to the
+  install or CI paths.
 - **Telegram notifications reply to the previous run of the same skill.** Default on. Ledger at `memory/telegram-threads/<skill>.json`. Kill switch: repo variable `TELEGRAM_REPLY_TO_PREVIOUS=0`. (#995)
 - **Three more run-harnesses: Cursor, Hermes, and GLM.** Cursor CLI (`agent -p`,
   `CURSOR_API_KEY`), Hermes via the Nous Portal (`hermes -z`, `HERMES_AUTH`), and
